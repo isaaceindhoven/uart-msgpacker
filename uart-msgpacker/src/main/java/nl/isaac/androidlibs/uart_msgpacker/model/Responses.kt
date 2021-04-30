@@ -8,6 +8,8 @@ data class ReadResponse(var rid: Int, var read: Map<Int, Any?>) : Serializable
 
 data class WriteResponse(var rid: Int, var result: Int?, var write: Map<Int, Any?>) : Serializable
 
+data class ResetMessagesResponse(var rid: Int, var resetMessages: Map<Int, Any?>) : Serializable
+
 data class Message(var mid: Int,
                    @SerializedName("endoflist")
                    var endOfList: Array<Int>?,

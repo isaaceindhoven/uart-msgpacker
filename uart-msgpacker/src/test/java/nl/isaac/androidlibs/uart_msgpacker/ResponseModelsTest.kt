@@ -4,6 +4,7 @@ import nl.isaac.androidlibs.uart_msgpacker.gson.GsonUtil
 import nl.isaac.androidlibs.uart_msgpacker.model.ReadResponse
 import nl.isaac.androidlibs.uart_msgpacker.packer.UARTUnpacker
 import nl.isaac.androidlibs.uart_msgpacker.packer.stringToBytes
+import org.junit.Assert
 import org.junit.Test
 import org.msgpack.core.MessagePack
 
@@ -74,5 +75,23 @@ class ResponseModelsTest {
         assert(map.all { response.read?.read?.values?.contains(it.value) == true })
         assert(response.read?.read?.get(49002) is Map<*,*>)
         assert((response.read?.read?.get(49002) as Map<*, *>)["error"] == 15)
+    }
+
+    @Test
+    fun testResetMessages() {
+        val testResponse = "82a372696404ad72657365744d6573736167657381cd032000"
+        /*
+        In readable text:
+        {
+          "rid": 4,
+          "resetMessages": {
+            "800": 0
+          }
+        }
+         */
+        val response = UARTUnpacker.unpackResponse(testResponse.stringToBytes())
+
+        Assert.assertEquals(800, response.write?.write?.keys?.first())
+        Assert.assertEquals(0, response.write?.write?.values?.first())
     }
 }

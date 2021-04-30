@@ -1,10 +1,7 @@
 package nl.isaac.androidlibs.uart_msgpacker.packer
 
 import nl.isaac.androidlibs.uart_msgpacker.gson.GsonUtil
-import nl.isaac.androidlibs.uart_msgpacker.model.MessageResponse
-import nl.isaac.androidlibs.uart_msgpacker.model.ReadResponse
-import nl.isaac.androidlibs.uart_msgpacker.model.ResponseWrapper
-import nl.isaac.androidlibs.uart_msgpacker.model.WriteResponse
+import nl.isaac.androidlibs.uart_msgpacker.model.*
 import org.msgpack.core.MessagePack
 import org.msgpack.core.MessageUnpacker
 
@@ -15,11 +12,18 @@ class UARTUnpacker {
             val unpacker = MessagePack.newDefaultUnpacker(data)
             val unpackedResponse = unpacker.unpackValue().toJson()
             return when (determineResponseType(unpackedResponse)) {
-                ResponseType.WRITE, ResponseType.RESET_MESSAGES -> unpackWriteResponse(unpackedResponse)
+                ResponseType.WRITE -> unpackWriteResponse(unpackedResponse)
+                ResponseType.RESET_MESSAGES -> unpackResetMessageResponse(unpackedResponse)
                 ResponseType.MESSAGE -> unpackMessageResponse(unpackedResponse, unpacker)
                 ResponseType.READ -> unpackReadResponse(unpackedResponse)
                 null -> ResponseWrapper(null, null, null)
             }
+        }
+
+        private fun unpackResetMessageResponse(unpacked: String): ResponseWrapper {
+            val deserialized = GsonUtil.getGson().fromJson<ResetMessagesResponse>(unpacked, ResetMessagesResponse::class.java)
+            // ResetMessageResponse does not have it's own property on the ResponseWrapper
+            return ResponseWrapper(null, WriteResponse(deserialized.rid, null, deserialized.resetMessages), null)
         }
 
         private fun unpackMessageResponse(unpacked: String, unpacker: MessageUnpacker): ResponseWrapper {
