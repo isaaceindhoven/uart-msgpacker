@@ -3,50 +3,59 @@ package nl.isaac.androidlibs.uart_msgpacker.packer
 import nl.isaac.androidlibs.uart_msgpacker.gson.GsonUtil
 import nl.isaac.androidlibs.uart_msgpacker.model.*
 import org.msgpack.core.MessagePack
-import org.msgpack.core.MessageUnpacker
 
 class UARTUnpacker {
     companion object {
-        fun unpackResponse(data: ByteArray): ResponseWrapper {
-            // Unpack to JSON string first so we can identify the type of response message
+        /**
+         * Method for deserializing custom responses.
+         * The JSON String and the library's Gson will be returned to the callsite so that the user can do the string -> POJO conversion as they see fit.
+         *
+         * @param data The ByteArray containing the messagepack formatted response
+         * @param type The Class of the response to deserialize to.
+         */
+        fun <T> unpackToType(data: ByteArray, type: Class<T>): T {
+            val json = MessagePack.newDefaultUnpacker(data).unpackValue().toJson()
+            return GsonUtil.getGson().fromJson<T>(json, type)
+        }
+
+        /**
+         * Method for unpacking to a list of a certain type.
+         */
+        fun <T> unpackToListOfType(data: ByteArray, type: Class<T>): List<T> {
+            val list = mutableListOf<T>()
+            val gson = GsonUtil.getGson()
             val unpacker = MessagePack.newDefaultUnpacker(data)
+            while (unpacker.hasNext()) {
+                val unpacked = unpacker.unpackValue().toJson()
+                val deserialized = gson.fromJson<T>(unpacked, type)
+                list.add(deserialized)
+            }
+            return list
+        }
+
+        fun unpackToResponseWrapper(data: ByteArray): ResponseWrapper {
+            // Unpack a clone of the data to JSON string first so we can identify the type of response message
+            val unpacker = MessagePack.newDefaultUnpacker(data.clone())
             val unpackedResponse = unpacker.unpackValue().toJson()
             return when (determineResponseType(unpackedResponse)) {
-                ResponseType.WRITE -> unpackWriteResponse(unpackedResponse)
-                ResponseType.RESET_MESSAGES -> unpackResetMessageResponse(unpackedResponse)
-                ResponseType.MESSAGE -> unpackMessageResponse(unpackedResponse, unpacker)
-                ResponseType.READ -> unpackReadResponse(unpackedResponse)
+                ResponseType.MESSAGE -> {
+                    val messageList = unpackToListOfType(data, MessageResponse::class.java)
+                    ResponseWrapper(null, null, messageList)
+                }
+                ResponseType.WRITE -> {
+                    val writeResponse = unpackToType(data, WriteResponse::class.java)
+                    ResponseWrapper(null, writeResponse, null)
+                }
+                ResponseType.RESET_MESSAGES -> {
+                    val reset = unpackToType(data, ResetMessagesResponse::class.java)
+                    ResponseWrapper(null, WriteResponse(reset.rid, null, reset.resetMessages), null)
+                }
+                ResponseType.READ -> {
+                    val readResponse = unpackToType(data, ReadResponse::class.java)
+                    ResponseWrapper(readResponse, null, null)
+                }
                 null -> ResponseWrapper(null, null, null)
             }
-        }
-
-        private fun unpackResetMessageResponse(unpacked: String): ResponseWrapper {
-            val deserialized = GsonUtil.getGson().fromJson<ResetMessagesResponse>(unpacked, ResetMessagesResponse::class.java)
-            // ResetMessageResponse does not have it's own property on the ResponseWrapper
-            return ResponseWrapper(null, WriteResponse(deserialized.rid, null, deserialized.resetMessages), null)
-        }
-
-        private fun unpackMessageResponse(unpacked: String, unpacker: MessageUnpacker): ResponseWrapper {
-            val messageList = mutableListOf<MessageResponse>()
-            val gson = GsonUtil.getGson()
-            var deserialized = gson.fromJson<MessageResponse>(unpacked, MessageResponse::class.java)
-            messageList.add(deserialized)
-            while (unpacker.hasNext()) {
-                val nextUnpackedMessage = unpacker.unpackValue().toJson()
-                deserialized = gson.fromJson<MessageResponse>(nextUnpackedMessage, MessageResponse::class.java)
-                messageList.add(deserialized)
-            }
-            return ResponseWrapper(null, null, messageList)
-        }
-
-        private fun unpackReadResponse(unpacked: String): ResponseWrapper {
-            val deserialized = GsonUtil.getGson().fromJson<ReadResponse>(unpacked, ReadResponse::class.java)
-            return ResponseWrapper(deserialized, null, null)
-        }
-
-        private fun unpackWriteResponse(unpacked: String): ResponseWrapper {
-            val deserialized = GsonUtil.getGson().fromJson<WriteResponse>(unpacked, WriteResponse::class.java)
-            return ResponseWrapper(null, deserialized, null)
         }
 
         private fun determineResponseType(data: String): ResponseType? {

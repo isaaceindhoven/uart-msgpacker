@@ -10,7 +10,7 @@ import com.google.gson.stream.JsonWriter
  * This Adapter is necessary so Gson does not deserialize everything to Doubles.
  * It also allows for Int typing on map keys, as this is common in the UART solution.
  */
-internal class NumberTypeAdapter : TypeAdapter<Any>() {
+class NumberTypeAdapter : TypeAdapter<Any>() {
 
     private val delegate = Gson().getAdapter(Any::class.java)
 
@@ -34,7 +34,7 @@ internal class NumberTypeAdapter : TypeAdapter<Any>() {
                     LinkedTreeMap()
                 `in`.beginObject()
                 while (`in`.hasNext()) {
-                    var name = `in`.nextName()
+                    val name = `in`.nextName()
                     var modbusName: Int? = null
                     try {
                         modbusName = name.toInt()

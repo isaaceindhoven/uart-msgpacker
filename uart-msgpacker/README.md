@@ -22,6 +22,10 @@ Upon receiving a ByteArray notification containing a UART response, call
 `UARTUnpacker.unpackResponse(data)`
 in order to get the unpacked and deserialized `ResponseWrapper` POJO. 
 
+If you have a custom response, you can use either 
+`unpackToType(data, Class)` or `unpackToListOfType(data, Class)`
+in which you can provide you own data class. 
+
 # Gson NumberTypeAdapter
 
 The NumberTypeAdapter had to be added in order to allow Integers as map keys, as this is common in the responses coming from UART. 
@@ -32,3 +36,5 @@ Currently the `NumberTypeAdapter` is registered for the following types:
   - `Map<Int, Any?>`
   - `Array<Any>`
   - `List<Any>`
+  
+You can also use the adapter in your own `GsonBuilder` should you require support for other types. 

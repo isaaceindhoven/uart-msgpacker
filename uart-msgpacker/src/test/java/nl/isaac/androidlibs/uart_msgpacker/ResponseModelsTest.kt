@@ -2,13 +2,30 @@ package nl.isaac.androidlibs.uart_msgpacker
 
 import nl.isaac.androidlibs.uart_msgpacker.gson.GsonUtil
 import nl.isaac.androidlibs.uart_msgpacker.model.ReadResponse
+import nl.isaac.androidlibs.uart_msgpacker.model.ResetMessagesResponse
+import nl.isaac.androidlibs.uart_msgpacker.model.WriteResponse
 import nl.isaac.androidlibs.uart_msgpacker.packer.UARTUnpacker
 import nl.isaac.androidlibs.uart_msgpacker.packer.stringToBytes
 import org.junit.Assert
 import org.junit.Test
 import org.msgpack.core.MessagePack
+import java.io.Serializable
+
+data class CustomResponse(var mid: Int, var test: String, var properties: Map<Int, Any?>) : Serializable
 
 class ResponseModelsTest {
+
+    @Test
+    fun testUnpackingCustomType() {
+        val responseHex = "83A36D696401A474657374A6746573744D65AA70726F7065727469657381CDA02801"
+        val otherMapEncodedResponse = "DF00000003A36D696401A474657374A6746573744D65AA70726F70657274696573DF00000001CDA02801"
+        val pojoFromResponse = UARTUnpacker.unpackToType(responseHex.stringToBytes(), CustomResponse::class.java)
+        val otherMapEncodedPojo = UARTUnpacker.unpackToType(otherMapEncodedResponse.stringToBytes(), CustomResponse::class.java)
+        assert(pojoFromResponse.mid == 1)
+        assert(pojoFromResponse.test == "testMe")
+        assert(pojoFromResponse.properties == mapOf(41000 to 1))
+        assert(pojoFromResponse == otherMapEncodedPojo)
+    }
 
     @Test
     fun testParseResponseFromString() {
@@ -17,6 +34,7 @@ class ResponseModelsTest {
         val json = GsonUtil.getGson().fromJson<ReadResponse>(unpackedRequest, ReadResponse::class.java)
 
         assert(json.rid == 1)
+        assert(json.read == mapOf(49001 to 1))
     }
 
     @Test
@@ -46,17 +64,23 @@ class ResponseModelsTest {
           }
 
         */
-        val response = UARTUnpacker.unpackResponse(testResponse.stringToBytes())
-        println(response)
+        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        assert(response.messages?.size == 4)
+        assert(response.messages?.filter { it.message.endOfList != null }?.size == 1)
+        assert(response.messages?.filter { it.message.occured != null }?.size == 1)
+        assert(response.messages?.filter { it.message.reset != null }?.size == 1)
+        assert(response.messages?.filter { it.message.rootcause != null }?.size == 1)
     }
 
     @Test
     fun testWriteResponse() {
         val hexResponse = "83a372696401a5777269746583cdc0fd00cdafd20dcdafd4cd3c60a6726573756c7400"
-        val response = UARTUnpacker.unpackResponse(hexResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(hexResponse.stringToBytes())
+        val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), WriteResponse::class.java)
         assert(response.write?.rid == 1)
         assert(response.write?.write?.size == 3)
         assert(response.write?.result == 0)
+        assert(response.write?.equals(untypedResponse) == true)
     }
 
     @Test
@@ -68,13 +92,15 @@ class ResponseModelsTest {
         )
         // Read response with an error on one of the modbus registers.
         val hexResponse = "82a372696401a47265616483cdbf6901cdbf6a81a56572726f720fcdbf6b02"
-        val response = UARTUnpacker.unpackResponse(hexResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(hexResponse.stringToBytes())
+        val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), ReadResponse::class.java)
         assert(response.read?.rid == 1)
         assert(response.read?.read?.size == 3)
         assert(map.all { response.read?.read?.keys?.contains(it.key) == true })
         assert(map.all { response.read?.read?.values?.contains(it.value) == true })
         assert(response.read?.read?.get(49002) is Map<*,*>)
         assert((response.read?.read?.get(49002) as Map<*, *>)["error"] == 15)
+        assert(response.read?.equals(untypedResponse) == true)
     }
 
     @Test
@@ -89,9 +115,14 @@ class ResponseModelsTest {
           }
         }
          */
-        val response = UARTUnpacker.unpackResponse(testResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        val untypedResponse = UARTUnpacker.unpackToType(testResponse.stringToBytes(), ResetMessagesResponse::class.java)
 
         Assert.assertEquals(800, response.write?.write?.keys?.first())
         Assert.assertEquals(0, response.write?.write?.values?.first())
+        assert(response.write?.rid?.equals(4) == true)
+        assert(response.write?.rid?.equals(untypedResponse.rid) == true)
+        assert(response.write?.write?.keys?.first()?.equals(untypedResponse.resetMessages.keys.first()) == true)
+        assert(response.write?.write?.values?.first()?.equals(untypedResponse.resetMessages.values.first()) == true)
     }
 }
