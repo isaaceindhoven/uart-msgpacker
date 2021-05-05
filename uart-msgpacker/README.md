@@ -1,5 +1,8 @@
 This library is an implementation of MessagePack on UART as is currently in use by some of our clients. 
 It uses predefined Requests which you can create and send to your UART controller. 
+The top-level Reponse is a wrapper class that holds one of the three possible ResponseTypes. 
+A Response can be deserialized from the received ByteArray (generally as received on the BLE characteristic). 
+Currently it can only deserialize to the defined Response Types.
 
 # Requests
 
