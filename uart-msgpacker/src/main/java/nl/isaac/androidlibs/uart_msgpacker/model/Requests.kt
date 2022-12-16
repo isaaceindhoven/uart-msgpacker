@@ -45,7 +45,7 @@ data class ReadRequest(var rid: Int, var read: Array<Any>): Packable {
     }
 }
 
-data class WriteRequest(var rid: Int, var write: Map<Any, Any?>) : Serializable, Packable {
+open class WriteRequest(var rid: Int, var write: Map<Any, Any?>) : Serializable, Packable {
     override fun packRequest(): ByteArray {
         return MessagePack.newDefaultBufferPacker().apply {
             packMapHeader(2)
@@ -162,5 +162,4 @@ data class GetMessagesRequest(
             close()
         }.toByteArray()
     }
-
 }

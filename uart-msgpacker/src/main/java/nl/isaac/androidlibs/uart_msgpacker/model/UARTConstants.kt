@@ -1,6 +1,6 @@
 package nl.isaac.androidlibs.uart_msgpacker.model
 
-internal enum class UARTConstants(val serializationKey: String) {
+enum class UARTConstants(val serializationKey: String) {
     RID("rid"),
     READ("read"),
     WRITE("write"),
