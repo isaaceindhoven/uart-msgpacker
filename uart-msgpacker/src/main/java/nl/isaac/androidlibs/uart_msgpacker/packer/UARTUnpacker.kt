@@ -40,21 +40,25 @@ class UARTUnpacker {
             return when (determineResponseType(unpackedResponse)) {
                 ResponseType.MESSAGES -> {
                     val messageList = unpackToListOfType(data, MessageResponse::class.java)
-                    ResponseWrapper(null, null, messageList)
+                    ResponseWrapper(null, null, messageList, null)
                 }
                 ResponseType.WRITE -> {
                     val writeResponse = unpackToType(data, WriteResponse::class.java)
-                    ResponseWrapper(null, writeResponse, null)
+                    ResponseWrapper(null, writeResponse, null, null)
                 }
                 ResponseType.RESET_MESSAGES -> {
                     val reset = unpackToType(data, ResetMessagesResponse::class.java)
-                    ResponseWrapper(null, WriteResponse(reset.rid, null, reset.resetMessages), null)
+                    ResponseWrapper(null, WriteResponse(reset.rid, null, reset.resetMessages), null, null)
                 }
                 ResponseType.READ -> {
                     val readResponse = unpackToType(data, ReadResponse::class.java)
-                    ResponseWrapper(readResponse, null, null)
+                    ResponseWrapper(readResponse, null, null, null)
                 }
-                null -> ResponseWrapper(null, null, null)
+                ResponseType.LOGS -> {
+                    val logResponse = unpackToListOfType(data, LogResponse::class.java)
+                    ResponseWrapper(null, null, null, logResponse)
+                }
+                null -> ResponseWrapper(null, null, null, null)
             }
         }
 
@@ -64,12 +68,13 @@ class UARTUnpacker {
                 data.contains(ResponseType.RESET_MESSAGES.idString) -> ResponseType.RESET_MESSAGES
                 data.contains(ResponseType.MESSAGES.idString) -> ResponseType.MESSAGES
                 data.contains(ResponseType.READ.idString) -> ResponseType.READ
+                data.contains(ResponseType.LOGS.idString) -> ResponseType.LOGS
                 else -> null
             }
         }
 
         private enum class ResponseType(val idString: String) {
-            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("messages")
+            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("messages"), LOGS("logEntries")
         }
     }
 }

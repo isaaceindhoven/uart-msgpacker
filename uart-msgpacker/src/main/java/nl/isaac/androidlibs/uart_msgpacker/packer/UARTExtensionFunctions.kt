@@ -8,7 +8,6 @@ import java.math.BigInteger
  * packArray takes the readMap (an array of modbus registers to be read) and packs them as Ints.
  * An overloaded method exists in case you don't have type certainty. Please keep in mind that this might cause the value to be packed in a larger data type than strictly necessary.
  *
- * @param packer The messagePacker object currently packing.
  * @param readArray the list of modbus registers that need to be read by the control unit.
  */
 fun MessagePacker.packIntArray(readArray: Array<Int>) {
@@ -20,7 +19,6 @@ fun MessagePacker.packIntArray(readArray: Array<Int>) {
  * The overloaded packArray method that allows the readMap (an array of modbus registers to be read) to have objects of any type and packs them according to a type check.
  * Please keep in mind that this might cause the value to be packed in a larger data type than strictly necessary.
  *
- * @param packer The messagePacker object currently packing.
  * @param readArray the list of modbus registers that need to be read by the control unit, can be all types mixed.
  */
 fun MessagePacker.packArray(readArray: Array<Any>) {

@@ -6,6 +6,7 @@ enum class UARTConstants(val serializationKey: String) {
     WRITE("write"),
     READ_MESSAGES("readMessages"),
     RESET_MESSAGES("resetMessages"),
+    READ_LOG("readLogs"),
     COUNT("count"),
     TIMESTAMP("timestamp")
 }

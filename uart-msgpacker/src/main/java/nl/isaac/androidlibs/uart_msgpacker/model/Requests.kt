@@ -137,7 +137,26 @@ data class ReadMessages(
     override fun hashCode(): Int {
         return 29 * count + timestamp.contentHashCode()
     }
+}
 
+data class ReadLog(
+    var timestamp: Array<Int> = arrayOf(0, 0, 0, 0, 0, 0),
+    var count: Int = 0
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ReadLog
+
+        if (!timestamp.contentEquals(other.timestamp)) return false
+        if (count != other.count) return false
+
+        return true
+    }
+    override fun hashCode(): Int {
+        return 27 * count + timestamp.contentHashCode()
+    }
 }
 
 data class GetMessagesRequest(
@@ -158,6 +177,30 @@ data class GetMessagesRequest(
             packArrayHeader(readMessages.timestamp.size)
 
             packIntArray(readMessages.timestamp)
+
+            close()
+        }.toByteArray()
+    }
+}
+
+data class GetLogsRequest(
+    var rid: Int,
+    var readLog: ReadLog = ReadLog()
+) : Serializable, Packable {
+    override fun packRequest(): ByteArray {
+        if (readLog.timestamp.size != 6) throw IllegalArgumentException("Timestamp should be an int array of 6 numbers")
+        return MessagePack.newDefaultBufferPacker().apply {
+            packMapHeader(2)
+            packString(UARTConstants.RID.serializationKey)
+            packInt(rid)
+            packString(UARTConstants.READ_LOG.serializationKey)
+            packMapHeader(2)
+            packString(UARTConstants.COUNT.serializationKey)
+            packInt(readLog.count)
+            packString(UARTConstants.TIMESTAMP.serializationKey)
+            packArrayHeader(readLog.timestamp.size)
+
+            packIntArray(readLog.timestamp)
 
             close()
         }.toByteArray()
