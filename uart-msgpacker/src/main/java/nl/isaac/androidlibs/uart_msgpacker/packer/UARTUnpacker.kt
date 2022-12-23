@@ -38,7 +38,7 @@ class UARTUnpacker {
             val unpacker = MessagePack.newDefaultUnpacker(data.clone())
             val unpackedResponse = unpacker.unpackValue().toJson()
             return when (determineResponseType(unpackedResponse)) {
-                ResponseType.MESSAGE -> {
+                ResponseType.MESSAGES -> {
                     val messageList = unpackToListOfType(data, MessageResponse::class.java)
                     ResponseWrapper(null, null, messageList)
                 }
@@ -62,14 +62,14 @@ class UARTUnpacker {
             return when {
                 data.contains(ResponseType.WRITE.idString) -> ResponseType.WRITE
                 data.contains(ResponseType.RESET_MESSAGES.idString) -> ResponseType.RESET_MESSAGES
-                data.contains(ResponseType.MESSAGE.idString) -> ResponseType.MESSAGE
+                data.contains(ResponseType.MESSAGES.idString) -> ResponseType.MESSAGES
                 data.contains(ResponseType.READ.idString) -> ResponseType.READ
                 else -> null
             }
         }
 
         private enum class ResponseType(val idString: String) {
-            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGE("message")
+            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("messages")
         }
     }
 }
