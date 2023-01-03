@@ -74,7 +74,7 @@ class UARTUnpacker {
         }
 
         private enum class ResponseType(val idString: String) {
-            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("messages"), LOGS("logEntries")
+            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("message"), LOGS("logEntries")
         }
     }
 }
