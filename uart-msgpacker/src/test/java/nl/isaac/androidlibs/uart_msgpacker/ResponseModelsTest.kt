@@ -125,4 +125,92 @@ class ResponseModelsTest {
         assert(response.write?.write?.keys?.first()?.equals(untypedResponse.resetMessages.keys.first()) == true)
         assert(response.write?.write?.values?.first()?.equals(untypedResponse.resetMessages.values.first()) == true)
     }
+
+    @Test
+    fun testParseLogEntriesResponseWrapper() {
+        val testResponse =
+            """
+                |82A372696410AA6C6F67456E747269657384A974696D657374616D7096160C1C012D22A474656D70CDFFFFA372647001AA70726F702D76616C76654E
+                |82A372696410AA6C6F67456E747269657384A974696D657374616D7096160C1C012D22A874616E6B2D72656CCD048FA5666C75736801AE6661696C2D7375702D76616C766543
+                |82A372696410AA6C6F67456E747269657384A974696D657374616D7096160C1C012D22A87365742D64697370CD2320A562616E64774EAA70756D702D6D6F646573920002
+                |82a372696410aa6c6f67456e747269657381a9656e646f666c69737496000000000000
+            """.trimMargin().replace("\n", "").replace("\r", "")
+        /* In readable json:
+
+          {
+            "rid": 16,
+            "logEntries": {
+                "timestamp": [
+                    22,
+                    12,
+                    28,
+                    1,
+                    45,
+                    34
+                ],
+                "temp": 65535,
+                "rdp": 1,
+                "prop-valve": 78
+            }
+          }
+          {
+            "rid": 16,
+            "logEntries": {
+                "timestamp": [
+                    22,
+                    12,
+                    28,
+                    1,
+                    45,
+                    34
+                ],
+                "tank-rel": 1167,
+                "flush": 1,
+                "fail-sup-valve": 67
+            }
+          }
+         {
+            "rid": 16,
+            "logEntries": {
+                "timestamp": [
+                    22,
+                    12,
+                    28,
+                    1,
+                    45,
+                    34
+                ],
+                "set-disp": 8992,
+                "bandw": 78,
+                "pump-modes": [0, 2]
+            }
+         }
+         {
+            "rid": 16,
+            "logEntries": {
+                "endoflist": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+         }
+
+        */
+        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        assert(response.logs?.size == 4)
+        assert(response.logs?.filter { it.logEntries.temp != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.rdp != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.propvalve != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.tankrel != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.flush != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.failsupvalve != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.setdisp != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.bandw != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.pumpmodes != null }?.size == 1)
+        assert(response.logs?.filter { it.logEntries.endOfList != null }?.size == 1)
+    }
 }

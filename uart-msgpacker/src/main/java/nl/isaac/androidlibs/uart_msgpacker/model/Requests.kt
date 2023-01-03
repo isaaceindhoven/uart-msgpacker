@@ -195,12 +195,11 @@ data class GetLogsRequest(
             packInt(rid)
             packString(UARTConstants.READ_LOG.serializationKey)
             packMapHeader(2)
-            packString(UARTConstants.COUNT.serializationKey)
-            packInt(readLog.count)
             packString(UARTConstants.TIMESTAMP.serializationKey)
             packArrayHeader(readLog.timestamp.size)
-
             packIntArray(readLog.timestamp)
+            packString(UARTConstants.COUNT.serializationKey)
+            packInt(readLog.count)
 
             close()
         }.toByteArray()

@@ -3,8 +3,6 @@ package nl.isaac.androidlibs.uart_msgpacker.model
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-
-
 enum class TimestampType(val id: String) {
     OCCURRED("occured"), RESET("reset"), ROOTCAUSEDISAPPEARED("rootcausedisappeared"), END_OF_LIST("endoflist")
 }
@@ -25,39 +23,78 @@ data class ResetMessagesResponse(var rid: Int, var resetMessages: Map<Int, Any?>
 
 data class LogEntries(
     var timestamp: Array<Int> = arrayOf(0, 0, 0, 0, 0, 0),
+    @SerializedName("dis-press")
     var dispress: Int? = null,
+    @SerializedName("suc-press")
     var sucpress: Int?= null,
+    @SerializedName("tank-press")
     var tankpress: Int?= null,
+    @SerializedName("set-bms")
     var setbms: Int?= null,
+    @SerializedName("set-disp")
     var setdisp: Int?= null,
+    @SerializedName("bandw")
     var bandw: Int?= null,
+    @SerializedName("temp")
     var temp: Int?= null,
+    @SerializedName("rdp")
     var rdp: Int?= null,
+    @SerializedName("tank-rel")
     var tankrel: Int?= null,
+    @SerializedName("prop-valve")
     var propvalve: Int?= null,
+    @SerializedName("alt-prop-valve")
     var altpropvalve: Int?= null,
+    @SerializedName("sol-valve")
     var solvalve: Boolean?= null,
+    @SerializedName("alt-sol-valve")
     var altsolvalve: Boolean?= null,
-    var pumpmodes: Array<PumpMode>?= null,
+    @SerializedName("pump-modes")
+    var pumpmodes: Array<Int>?= null,
+    @SerializedName("pump-fails")
     var pumpfails: Array<Boolean>?= null,
-    var pumploads: Int?= null,
+    @SerializedName("pump-loads")
+    var pumploads: Array<Int>?= null,
+    @SerializedName("msg-occ")
     var msgocc: Int?= null,
+    @SerializedName("msg-rcd")
     var msgrcd: Int?= null,
+    @SerializedName("msg-res")
     var msgres: Int?= null,
+    @SerializedName("ext-on-off")
     var extonoff: Int?= null,
+    @SerializedName("fire-alarm")
     var firealarm: Int?= null,
+    @SerializedName("reset-all")
     var resetall: Int?= null,
+    @SerializedName("alt-setp")
     var altsetp: Int?= null,
+    @SerializedName("check-run")
     var checkrun: Int?= null,
+    @SerializedName("emrg-pow")
     var emrgpow: Int?= null,
+    @SerializedName("flush")
     var flush: Int?= null,
+    @SerializedName("fail-sup-valve")
     var failsupvalve: Int?= null,
+    @SerializedName("fail-add-sup-valve")
     var failaddsupvalve: Int?= null,
+    @SerializedName("endoflist")
+    var endOfList: Array<Int>? = null,
 ) {
-    fun getPumpLoadsStatus(): PumpLoadsType {
+    fun getPumpLoadsStatus(pumpLoad: Int): PumpLoadsType {
         return when {
-            pumploads != 255 -> PumpLoadsType.ACTIVE
+            pumpLoad != 255 -> PumpLoadsType.ACTIVE
             else -> PumpLoadsType.OFF
+        }
+    }
+
+    fun getPumpMode(pumpMode: Int): PumpMode {
+        return when (pumpMode){
+            0 -> PumpMode.AUTOMATIC
+            1 -> PumpMode.OFF
+            2 -> PumpMode.MANUAL
+            else -> throw RuntimeException("Unknown message is being created")
         }
     }
 
@@ -93,7 +130,10 @@ data class LogEntries(
             if (other.pumpfails == null) return false
             if (!pumpfails.contentEquals(other.pumpfails)) return false
         } else if (other.pumpfails != null) return false
-        if (pumploads != other.pumploads) return false
+        if (pumploads != null) {
+            if (other.pumploads == null) return false
+            if (!pumploads.contentEquals(other.pumploads)) return false
+        } else if (other.pumploads != null) return false
         if (msgocc != other.msgocc) return false
         if (msgrcd != other.msgrcd) return false
         if (msgres != other.msgres) return false
@@ -106,6 +146,7 @@ data class LogEntries(
         if (flush != other.flush) return false
         if (failsupvalve != other.failsupvalve) return false
         if (failaddsupvalve != other.failaddsupvalve) return false
+        if (!endOfList.contentEquals(other.endOfList)) return false
 
         return true
     }
@@ -127,7 +168,7 @@ data class LogEntries(
         result = 31 * result + (altsolvalve?.hashCode() ?: 0)
         result = 31 * result + (pumpmodes?.contentHashCode() ?: 0)
         result = 31 * result + (pumpfails?.contentHashCode() ?: 0)
-        result = 31 * result + (pumploads ?: 0)
+        result = 31 * result + (pumploads?.contentHashCode() ?: 0)
         result = 31 * result + (msgocc ?: 0)
         result = 31 * result + (msgrcd ?: 0)
         result = 31 * result + (msgres ?: 0)
@@ -140,6 +181,7 @@ data class LogEntries(
         result = 31 * result + (flush ?: 0)
         result = 31 * result + (failsupvalve ?: 0)
         result = 31 * result + (failaddsupvalve ?: 0)
+        result = 31 * result + endOfList.contentHashCode()
         return result
     }
 }

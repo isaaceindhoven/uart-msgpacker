@@ -125,5 +125,43 @@ class RequestModelsTest {
         assert(json.readMessages.timestamp.contentEquals(request.readMessages.timestamp))
         assert(json.readMessages.count == request.readMessages.count)
     }
+
+    @Test
+    fun testGetAllLogsRequest(){
+        // Values for request.
+        val rid = 16
+        val request = GetLogsRequest(rid)
+        // Pack request
+        val packedRequest = request.packRequest()
+        // Unpack to new object
+        val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
+        val json = GsonUtil.getGson().fromJson(unpackedRequest, GetLogsRequest::class.java)
+
+        // Assertions
+        assert(packedRequest.isNotEmpty())
+        assert(json.rid == rid)
+        assert(json.readLog.timestamp.contentEquals(request.readLog.timestamp))
+        assert(json.readLog.count == request.readLog.count)
+    }
+
+    @Test
+    fun testGetSomeLogsRequest(){
+        // Values for request.
+        val rid = 16
+        val count = 2
+        val timestamp = arrayOf(22, 12, 15, 11, 41, 26)
+        val request = GetLogsRequest(rid, ReadLog(timestamp, count))
+        // Pack request
+        val packedRequest = request.packRequest()
+        // Unpack to new object
+        val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
+        val json = GsonUtil.getGson().fromJson(unpackedRequest, GetLogsRequest::class.java)
+
+        // Assertions
+        assert(packedRequest.isNotEmpty())
+        assert(json.rid == rid)
+        assert(json.readLog.timestamp.contentEquals(request.readLog.timestamp))
+        assert(json.readLog.count == request.readLog.count)
+    }
 }
 
