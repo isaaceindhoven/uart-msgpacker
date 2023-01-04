@@ -46,13 +46,13 @@ data class LogEntries(
     @SerializedName("alt-prop-valve")
     var altpropvalve: Int?= null,
     @SerializedName("sol-valve")
-    var solvalve: Boolean?= null,
+    var solvalve: Int?= null,
     @SerializedName("alt-sol-valve")
-    var altsolvalve: Boolean?= null,
+    var altsolvalve: Int?= null,
     @SerializedName("pump-modes")
     var pumpmodes: Array<Int>?= null,
     @SerializedName("pump-fails")
-    var pumpfails: Array<Boolean>?= null,
+    var pumpfails: Array<Int>?= null,
     @SerializedName("pump-loads")
     var pumploads: Array<Int>?= null,
     @SerializedName("msg-occ")
