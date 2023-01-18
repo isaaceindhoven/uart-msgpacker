@@ -82,6 +82,9 @@ data class LogEntries(
     @SerializedName("endoflist")
     var endOfList: Array<Int>? = null,
 ) {
+    fun isEndOfListMessage(): Boolean {
+        return timestamp.contentEquals(arrayOf(0, 0, 0, 0, 0, 0)) && endOfList != null
+    }
     fun getPumpLoadsStatus(pumpLoad: Int): PumpLoadsType {
         return when {
             pumpLoad != 255 -> PumpLoadsType.ACTIVE

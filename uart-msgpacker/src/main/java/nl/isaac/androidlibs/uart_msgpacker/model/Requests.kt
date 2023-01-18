@@ -141,7 +141,7 @@ data class ReadMessages(
 
 data class ReadLog(
     var timestamp: Array<Int> = arrayOf(0, 0, 0, 0, 0, 0),
-    var count: Int = 0
+    var count: Int = 500
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
