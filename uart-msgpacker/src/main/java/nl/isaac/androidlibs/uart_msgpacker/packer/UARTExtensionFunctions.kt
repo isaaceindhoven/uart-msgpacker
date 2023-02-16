@@ -15,6 +15,7 @@ fun MessagePacker.packIntArray(readArray: Array<Int>) {
         packInt(entry)
     }
 }
+
 /**
  * The overloaded packArray method that allows the readMap (an array of modbus registers to be read) to have objects of any type and packs them according to a type check.
  * Please keep in mind that this might cause the value to be packed in a larger data type than strictly necessary.

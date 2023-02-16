@@ -64,7 +64,10 @@ class ResponseModelsTest {
           }
 
         */
-        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(
+            testResponse.stringToBytes(),
+            shouldUseNewKeys()
+        )
         assert(response.messages?.size == 4)
         assert(response.messages?.filter { it.message.endOfList != null }?.size == 1)
         assert(response.messages?.filter { it.message.occured != null }?.size == 1)
@@ -75,7 +78,10 @@ class ResponseModelsTest {
     @Test
     fun testWriteResponse() {
         val hexResponse = "83a372696401a5777269746583cdc0fd00cdafd20dcdafd4cd3c60a6726573756c7400"
-        val response = UARTUnpacker.unpackToResponseWrapper(hexResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(
+            hexResponse.stringToBytes(),
+            shouldUseNewKeys()
+        )
         val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), WriteResponse::class.java)
         assert(response.write?.rid == 1)
         assert(response.write?.write?.size == 3)
@@ -92,7 +98,10 @@ class ResponseModelsTest {
         )
         // Read response with an error on one of the modbus registers.
         val hexResponse = "82a372696401a47265616483cdbf6901cdbf6a81a56572726f720fcdbf6b02"
-        val response = UARTUnpacker.unpackToResponseWrapper(hexResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(
+            hexResponse.stringToBytes(),
+            shouldUseNewKeys()
+        )
         val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), ReadResponse::class.java)
         assert(response.read?.rid == 1)
         assert(response.read?.read?.size == 3)
@@ -115,7 +124,10 @@ class ResponseModelsTest {
           }
         }
          */
-        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(
+            testResponse.stringToBytes(),
+            shouldUseNewKeys()
+        )
         val untypedResponse = UARTUnpacker.unpackToType(testResponse.stringToBytes(), ResetMessagesResponse::class.java)
 
         Assert.assertEquals(800, response.write?.write?.keys?.first())
@@ -200,7 +212,10 @@ class ResponseModelsTest {
          }
 
         */
-        val response = UARTUnpacker.unpackToResponseWrapper(testResponse.stringToBytes())
+        val response = UARTUnpacker.unpackToResponseWrapper(
+            testResponse.stringToBytes(),
+            shouldUseNewKeys()
+        )
         assert(response.logs?.size == 4)
         assert(response.logs?.filter { it.logEntries.temp != null }?.size == 1)
         assert(response.logs?.filter { it.logEntries.rdp != null }?.size == 1)
