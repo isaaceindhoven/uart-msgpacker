@@ -18,3 +18,4 @@ as well as the necessary dependencies for the library (.aar does not include tra
 `implementation 'com.google.code.gson:gson:2.8.6'` // Older versions of Gson are probably compatible too.
 
 The other option is to include this repository as a git submodule in the project.
+If you plan on pushing code to the origin, make sure to use SSH when cloning to prevent issues now the GitHub no longer allows credential auth for this.
