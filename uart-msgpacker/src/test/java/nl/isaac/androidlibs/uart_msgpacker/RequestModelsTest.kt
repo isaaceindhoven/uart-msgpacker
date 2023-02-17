@@ -16,7 +16,7 @@ class RequestModelsTest {
         val rid = 2
         val request = ReadRequest(rid, modbusIdList.toTypedArray())
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         val hex = packedRequest.toHexString()
         // Unpack request to new object.
         val requestParsed = MessagePack.newDefaultUnpacker(hex.stringToBytes()).unpackValue().toJson()
@@ -38,7 +38,7 @@ class RequestModelsTest {
         val request = WriteRequest(rid, writeMap as Map<Any, Any?>)
 
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson<WriteRequest>(unpackedRequest, WriteRequest::class.java)
@@ -59,7 +59,7 @@ class RequestModelsTest {
         val rid = 34
         val request = ResetAllMessagesRequest(rid)
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson<ResetAllMessagesRequest>(unpackedRequest, ResetAllMessagesRequest::class.java)
@@ -77,7 +77,7 @@ class RequestModelsTest {
         val messageIds = arrayOf(801, 802, 101, 201, 301)
         val request = ResetMessagesByIdRequest(rid, messageIds as Array<Any>)
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson<ResetMessagesByIdRequest>(unpackedRequest, ResetMessagesByIdRequest::class.java)
@@ -94,7 +94,7 @@ class RequestModelsTest {
         val rid = 42
         val request = GetMessagesRequest(rid)
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson<GetMessagesRequest>(unpackedRequest, GetMessagesRequest::class.java)
@@ -114,7 +114,7 @@ class RequestModelsTest {
         val timestamp = arrayOf(1, 23, 42, 12, 52, 34)
         val request = GetMessagesRequest(rid, ReadMessages(timestamp, count))
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson<GetMessagesRequest>(unpackedRequest, GetMessagesRequest::class.java)
@@ -132,7 +132,7 @@ class RequestModelsTest {
         val rid = 16
         val request = GetLogsRequest(rid)
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson(unpackedRequest, GetLogsRequest::class.java)
@@ -152,7 +152,7 @@ class RequestModelsTest {
         val timestamp = arrayOf(22, 12, 15, 11, 41, 26)
         val request = GetLogsRequest(rid, ReadLog(timestamp, count))
         // Pack request
-        val packedRequest = request.packRequest(shouldUseNewKeys())
+        val packedRequest = request.packRequest(false)
         // Unpack to new object
         val unpackedRequest = MessagePack.newDefaultUnpacker(packedRequest).unpackValue().toJson()
         val json = GsonUtil.getGson().fromJson(unpackedRequest, GetLogsRequest::class.java)

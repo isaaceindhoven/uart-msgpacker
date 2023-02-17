@@ -66,7 +66,7 @@ class ResponseModelsTest {
         */
         val response = UARTUnpacker.unpackToResponseWrapper(
             testResponse.stringToBytes(),
-            shouldUseNewKeys()
+            false
         )
         assert(response.messages?.size == 4)
         assert(response.messages?.filter { it.message.endOfList != null }?.size == 1)
@@ -80,7 +80,7 @@ class ResponseModelsTest {
         val hexResponse = "83a372696401a5777269746583cdc0fd00cdafd20dcdafd4cd3c60a6726573756c7400"
         val response = UARTUnpacker.unpackToResponseWrapper(
             hexResponse.stringToBytes(),
-            shouldUseNewKeys()
+            false
         )
         val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), WriteResponse::class.java)
         assert(response.write?.rid == 1)
@@ -100,7 +100,7 @@ class ResponseModelsTest {
         val hexResponse = "82a372696401a47265616483cdbf6901cdbf6a81a56572726f720fcdbf6b02"
         val response = UARTUnpacker.unpackToResponseWrapper(
             hexResponse.stringToBytes(),
-            shouldUseNewKeys()
+            false
         )
         val untypedResponse = UARTUnpacker.unpackToType(hexResponse.stringToBytes(), ReadResponse::class.java)
         assert(response.read?.rid == 1)
@@ -126,7 +126,7 @@ class ResponseModelsTest {
          */
         val response = UARTUnpacker.unpackToResponseWrapper(
             testResponse.stringToBytes(),
-            shouldUseNewKeys()
+            false
         )
         val untypedResponse = UARTUnpacker.unpackToType(testResponse.stringToBytes(), ResetMessagesResponse::class.java)
 
@@ -214,7 +214,7 @@ class ResponseModelsTest {
         */
         val response = UARTUnpacker.unpackToResponseWrapper(
             testResponse.stringToBytes(),
-            shouldUseNewKeys()
+            false
         )
         assert(response.logs?.size == 4)
         assert(response.logs?.filter { it.logEntries.temp != null }?.size == 1)
