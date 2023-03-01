@@ -33,11 +33,11 @@ class UARTUnpacker {
             return list
         }
 
-        fun unpackToResponseWrapper(data: ByteArray): ResponseWrapper {
+        fun unpackToResponseWrapper(data: ByteArray, shouldUseNewKeys: Boolean): ResponseWrapper {
             // Unpack a clone of the data to JSON string first so we can identify the type of response message
             val unpacker = MessagePack.newDefaultUnpacker(data.clone())
             val unpackedResponse = unpacker.unpackValue().toJson()
-            return when (determineResponseType(unpackedResponse)) {
+            return when (determineResponseType(unpackedResponse, shouldUseNewKeys)) {
                 ResponseType.MESSAGES -> {
                     val messageList = unpackToListOfType(data, MessageResponse::class.java)
                     ResponseWrapper(null, null, messageList, null)
@@ -48,7 +48,12 @@ class UARTUnpacker {
                 }
                 ResponseType.RESET_MESSAGES -> {
                     val reset = unpackToType(data, ResetMessagesResponse::class.java)
-                    ResponseWrapper(null, WriteResponse(reset.rid, null, reset.resetMessages), null, null)
+                    ResponseWrapper(
+                        null,
+                        WriteResponse(reset.rid, null, reset.resetMessages),
+                        null,
+                        null
+                    )
                 }
                 ResponseType.READ -> {
                     val readResponse = unpackToType(data, ReadResponse::class.java)
@@ -59,22 +64,31 @@ class UARTUnpacker {
                     ResponseWrapper(null, null, null, logResponse)
                 }
                 null -> ResponseWrapper(null, null, null, null)
+                else -> ResponseWrapper(null, null, null, null)
             }
         }
 
-        private fun determineResponseType(data: String): ResponseType? {
+        private fun determineResponseType(data: String, shouldUseNewKeys: Boolean): ResponseType? {
             return when {
-                data.contains(ResponseType.WRITE.idString) -> ResponseType.WRITE
-                data.contains(ResponseType.RESET_MESSAGES.idString) -> ResponseType.RESET_MESSAGES
-                data.contains(ResponseType.MESSAGES.idString) -> ResponseType.MESSAGES
-                data.contains(ResponseType.READ.idString) -> ResponseType.READ
-                data.contains(ResponseType.LOGS.idString) -> ResponseType.LOGS
+                data.contains(ResponseType.WRITE.idString(shouldUseNewKeys)) -> ResponseType.WRITE
+                data.contains(ResponseType.RESET_MESSAGES.idString(shouldUseNewKeys)) -> ResponseType.RESET_MESSAGES
+                data.contains(ResponseType.MESSAGES.idString(shouldUseNewKeys)) -> ResponseType.MESSAGES
+                data.contains(ResponseType.READ.idString(shouldUseNewKeys)) -> ResponseType.READ
+                data.contains(ResponseType.LOGS.idString(shouldUseNewKeys)) -> ResponseType.LOGS
                 else -> null
             }
         }
 
-        private enum class ResponseType(val idString: String) {
-            READ("read"), WRITE("write"), RESET_MESSAGES("resetMessages"), MESSAGES("message"), LOGS("logEntries")
+        private enum class ResponseType(val idString: String, val newIdString: String) {
+            READ("read", "read"), WRITE("write", "write"), RESET_MESSAGES(
+                "resetMessages",
+                "resetMessages"
+            ),
+            MESSAGES("message", "M"), LOGS("logEntries", "L");
+
+            fun idString(shouldUseNewKeys: Boolean): String {
+                return if (shouldUseNewKeys) newIdString else idString
+            }
         }
     }
 }

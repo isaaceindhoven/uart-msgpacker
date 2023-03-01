@@ -4,14 +4,27 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 enum class TimestampType(val id: String) {
-    OCCURRED("occured"), RESET("reset"), ROOTCAUSEDISAPPEARED("rootcausedisappeared"), END_OF_LIST("endoflist")
+    OCCURRED("occured"), RESET("reset"), ROOTCAUSEDISAPPEARED("rootcausedisappeared"), END_OF_LIST("endoflist"),
+    OCCURRED_NEW("occ"), RESET_NEW("rst"), ROOTCAUSEDISAPPEARED_NEW("dis"), END_OF_LIST_NEW("eol");
+
+    fun get(shouldUseNewKeys: Boolean): TimestampType {
+        return if (shouldUseNewKeys) {
+            when (this) {
+                OCCURRED -> OCCURRED_NEW
+                RESET -> RESET_NEW
+                ROOTCAUSEDISAPPEARED -> ROOTCAUSEDISAPPEARED_NEW
+                END_OF_LIST -> END_OF_LIST_NEW
+                else -> this
+            }
+        } else this
+    }
 }
 
 enum class PumpMode(val id: Int) {
     AUTOMATIC(0), OFF(1), MANUAL(2)
 }
 
-enum class PumpLoadsType{
+enum class PumpLoadsType {
     ACTIVE, OFF
 }
 
@@ -22,69 +35,71 @@ data class WriteResponse(var rid: Int, var result: Int?, var write: Map<Int, Any
 data class ResetMessagesResponse(var rid: Int, var resetMessages: Map<Int, Any?>) : Serializable
 
 data class LogEntries(
+    @SerializedName("timestamp", alternate = ["T"])
     var timestamp: Array<Int> = arrayOf(0, 0, 0, 0, 0, 0),
     @SerializedName("dis-press")
     var dispress: Int? = null,
     @SerializedName("suc-press")
-    var sucpress: Int?= null,
+    var sucpress: Int? = null,
     @SerializedName("tank-press")
-    var tankpress: Int?= null,
+    var tankpress: Int? = null,
     @SerializedName("set-bms")
-    var setbms: Int?= null,
+    var setbms: Int? = null,
     @SerializedName("set-disp")
-    var setdisp: Int?= null,
+    var setdisp: Int? = null,
     @SerializedName("bandw")
-    var bandw: Int?= null,
+    var bandw: Int? = null,
     @SerializedName("temp")
-    var temp: Int?= null,
+    var temp: Int? = null,
     @SerializedName("rdp")
-    var rdp: Int?= null,
+    var rdp: Int? = null,
     @SerializedName("tank-rel")
-    var tankrel: Int?= null,
+    var tankrel: Int? = null,
     @SerializedName("prop-valve")
-    var propvalve: Int?= null,
+    var propvalve: Int? = null,
     @SerializedName("alt-prop-valve")
-    var altpropvalve: Int?= null,
+    var altpropvalve: Int? = null,
     @SerializedName("sol-valve")
-    var solvalve: Int?= null,
+    var solvalve: Int? = null,
     @SerializedName("alt-sol-valve")
-    var altsolvalve: Int?= null,
+    var altsolvalve: Int? = null,
     @SerializedName("pump-modes")
-    var pumpmodes: Array<Int>?= null,
+    var pumpmodes: Array<Int>? = null,
     @SerializedName("pump-fails")
-    var pumpfails: Array<Int>?= null,
+    var pumpfails: Array<Int>? = null,
     @SerializedName("pump-loads")
-    var pumploads: Array<Int>?= null,
+    var pumploads: Array<Int>? = null,
     @SerializedName("msg-occ")
-    var msgocc: Int?= null,
+    var msgocc: Int? = null,
     @SerializedName("msg-rcd")
-    var msgrcd: Int?= null,
+    var msgrcd: Int? = null,
     @SerializedName("msg-res")
-    var msgres: Int?= null,
+    var msgres: Int? = null,
     @SerializedName("ext-on-off")
-    var extonoff: Int?= null,
+    var extonoff: Int? = null,
     @SerializedName("fire-alarm")
-    var firealarm: Int?= null,
+    var firealarm: Int? = null,
     @SerializedName("reset-all")
-    var resetall: Int?= null,
+    var resetall: Int? = null,
     @SerializedName("alt-setp")
-    var altsetp: Int?= null,
+    var altsetp: Int? = null,
     @SerializedName("check-run")
-    var checkrun: Int?= null,
+    var checkrun: Int? = null,
     @SerializedName("emrg-pow")
-    var emrgpow: Int?= null,
+    var emrgpow: Int? = null,
     @SerializedName("flush")
-    var flush: Int?= null,
+    var flush: Int? = null,
     @SerializedName("fail-sup-valve")
-    var failsupvalve: Int?= null,
+    var failsupvalve: Int? = null,
     @SerializedName("fail-add-sup-valve")
-    var failaddsupvalve: Int?= null,
-    @SerializedName("endoflist")
+    var failaddsupvalve: Int? = null,
+    @SerializedName("endoflist", alternate = ["eol"])
     var endOfList: Array<Int>? = null,
 ) {
     fun isEndOfListMessage(): Boolean {
         return timestamp.contentEquals(arrayOf(0, 0, 0, 0, 0, 0)) && endOfList != null
     }
+
     fun getPumpLoadsStatus(pumpLoad: Int): PumpLoadsType {
         return when {
             pumpLoad != 255 -> PumpLoadsType.ACTIVE
@@ -93,7 +108,7 @@ data class LogEntries(
     }
 
     fun getPumpMode(pumpMode: Int): PumpMode {
-        return when (pumpMode){
+        return when (pumpMode) {
             0 -> PumpMode.AUTOMATIC
             1 -> PumpMode.OFF
             2 -> PumpMode.MANUAL
@@ -189,33 +204,36 @@ data class LogEntries(
     }
 }
 
-data class Message(var mid: Int,
-                   @SerializedName("endoflist")
-                   var endOfList: Array<Int>?,
-                   @SerializedName("occured")
-                   var occured: Array<Int>?,
-                   @SerializedName("reset")
-                   var reset: Array<Int>?,
-                   @SerializedName("rootcausedisappeared")
-                   var rootcause: Array<Int>?) {
+data class Message(
+    var mid: Int,
+    @SerializedName(value = "endoflist", alternate = ["eol"])
+    var endOfList: Array<Int>?,
+    @SerializedName(value = "occured", alternate = ["occ"])
+    var occured: Array<Int>?,
+    @SerializedName(value = "reset", alternate = ["rst"])
+    var reset: Array<Int>?,
+    @SerializedName(value = "rootcausedisappeared", alternate = ["dis"])
+    var rootcause: Array<Int>?
+) {
 
-    fun getType() : TimestampType {
+    fun getType(shouldUseNewKeys: Boolean): TimestampType {
         return when {
-            occured != null -> TimestampType.OCCURRED
-            reset != null -> TimestampType.RESET
-            rootcause != null -> TimestampType.ROOTCAUSEDISAPPEARED
-            endOfList != null -> TimestampType.END_OF_LIST
+            occured != null -> TimestampType.OCCURRED.get(shouldUseNewKeys)
+            reset != null -> TimestampType.RESET.get(shouldUseNewKeys)
+            rootcause != null -> TimestampType.ROOTCAUSEDISAPPEARED.get(shouldUseNewKeys)
+            endOfList != null -> TimestampType.END_OF_LIST.get(shouldUseNewKeys)
             else -> throw RuntimeException("Unknown message is being created")
         }
     }
 
-    fun getTimestamp() : Array<Int> {
+    fun getTimestamp(shouldUseNewKeys: Boolean): Array<Int> {
         val default = Array<Int>(6) { 0 }
-        return when (getType()) {
-            TimestampType.OCCURRED -> occured ?: default
-            TimestampType.RESET -> reset ?: default
-            TimestampType.ROOTCAUSEDISAPPEARED -> rootcause ?: default
-            TimestampType.END_OF_LIST -> endOfList ?: default
+        return when (getType(shouldUseNewKeys)) {
+            TimestampType.OCCURRED.get(shouldUseNewKeys) -> occured ?: default
+            TimestampType.RESET.get(shouldUseNewKeys) -> reset ?: default
+            TimestampType.ROOTCAUSEDISAPPEARED.get(shouldUseNewKeys) -> rootcause ?: default
+            TimestampType.END_OF_LIST.get(shouldUseNewKeys) -> endOfList ?: default
+            else -> default
         }
     }
 
@@ -250,9 +268,17 @@ data class Message(var mid: Int,
     }
 }
 
-data class MessageResponse(var rid: Int, var message: Message)
+data class MessageResponse(
+    var rid: Int,
+    @SerializedName(value = "message", alternate = ["M"])
+    var message: Message
+)
 
-data class LogResponse(var rid: Int, var logEntries: LogEntries)
+data class LogResponse(
+    var rid: Int,
+    @SerializedName(value = "logEntries", alternate = ["L"])
+    var logEntries: LogEntries
+)
 
 data class ResponseWrapper(
     var read: ReadResponse?,
