@@ -42,33 +42,36 @@ fun MessagePacker.packArray(readArray: Array<Any>) {
 
 fun MessagePacker.packUARTMap(writeMap: Map<Any, Any?>) {
     for (entry in writeMap) {
-        when (entry.key) {
-            is Byte -> packByte(entry.key as Byte)
-            is BigInteger -> packBigInteger(entry.key as BigInteger)
-            is Boolean -> packBoolean(entry.key as Boolean)
-            is Double -> packDouble(entry.key as Double)
-            is Float -> packFloat(entry.key as Float)
-            is Int -> packInt(entry.key as Int)
-            is Long -> packLong(entry.key as Long)
-            is Short -> packShort(entry.key as Short)
-            is String -> packString(entry.key as String)
-            is Value -> packValue(entry.key as Value)
+        val key = entry.key
+        val value = entry.value
+        when (key) {
+            is Byte -> packByte(key)
+            is BigInteger -> packBigInteger(key)
+            is Boolean -> packBoolean(key)
+            is Double -> packDouble(key)
+            is Float -> packFloat(key)
+            is Int -> packInt(key)
+            is Long -> packLong(key)
+            is Short -> packShort(key)
+            is String -> packString(key)
+            is Value -> packValue(key)
             else -> throw Exception("Unknown type in packing: ${entry.key::class.java.simpleName}")
         }
-        when (entry.value) {
+        when (value) {
             null -> packNil()
-            is Byte -> packByte(entry.value as Byte)
-            is BigInteger -> packBigInteger(entry.value as BigInteger)
-            is Boolean -> packBoolean(entry.value as Boolean)
-            is Double -> packDouble(entry.value as Double)
-            is Float -> packFloat(entry.value as Float)
-            is Int -> packInt(entry.value as Int)
-            is Long -> packLong(entry.value as Long)
-            is Short -> packShort(entry.value as Short)
-            is String -> packString(entry.value as String)
-            is Value -> packValue(entry.value as Value)
+            is Byte -> packByte(value)
+            is BigInteger -> packBigInteger(value)
+            is Boolean -> packBoolean(value)
+            is Double -> packDouble(value)
+            is Float -> packFloat(value)
+            is Int -> packInt(value)
+            is UInt -> packLong(value.toLong())
+            is Long -> packLong(value)
+            is Short -> packShort(value)
+            is String -> packString(value)
+            is Value -> packValue(value)
             is Map<*, *> -> {
-                val localMap = entry.value as Map<Any, Any?>
+                val localMap = value as Map<Any, Any?>
                 packMapHeader(localMap.size)
                 packUARTMap(localMap)
             }
