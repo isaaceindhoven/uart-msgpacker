@@ -3,21 +3,8 @@ package nl.isaac.androidlibs.uart_msgpacker.model
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-enum class TimestampType(val id: String) {
-    OCCURRED("occured"), RESET("reset"), ROOTCAUSEDISAPPEARED("rootcausedisappeared"), END_OF_LIST("endoflist"),
-    OCCURRED_NEW("occ"), RESET_NEW("rst"), ROOTCAUSEDISAPPEARED_NEW("dis"), END_OF_LIST_NEW("eol");
-
-    fun get(shouldUseNewKeys: Boolean): TimestampType {
-        return if (shouldUseNewKeys) {
-            when (this) {
-                OCCURRED -> OCCURRED_NEW
-                RESET -> RESET_NEW
-                ROOTCAUSEDISAPPEARED -> ROOTCAUSEDISAPPEARED_NEW
-                END_OF_LIST -> END_OF_LIST_NEW
-                else -> this
-            }
-        } else this
-    }
+enum class TimestampType {
+    OCCURRED, RESET, ROOTCAUSEDISAPPEARED, END_OF_LIST
 }
 
 enum class PumpMode(val id: Int) {
@@ -216,23 +203,23 @@ data class Message(
     var rootcause: Array<Int>?
 ) {
 
-    fun getType(shouldUseNewKeys: Boolean): TimestampType {
+    fun getType(): TimestampType {
         return when {
-            occured != null -> TimestampType.OCCURRED.get(shouldUseNewKeys)
-            reset != null -> TimestampType.RESET.get(shouldUseNewKeys)
-            rootcause != null -> TimestampType.ROOTCAUSEDISAPPEARED.get(shouldUseNewKeys)
-            endOfList != null -> TimestampType.END_OF_LIST.get(shouldUseNewKeys)
+            occured != null -> TimestampType.OCCURRED
+            reset != null -> TimestampType.RESET
+            rootcause != null -> TimestampType.ROOTCAUSEDISAPPEARED
+            endOfList != null -> TimestampType.END_OF_LIST
             else -> throw RuntimeException("Unknown message is being created")
         }
     }
 
-    fun getTimestamp(shouldUseNewKeys: Boolean): Array<Int> {
+    fun getTimestamp(): Array<Int> {
         val default = Array<Int>(6) { 0 }
-        return when (getType(shouldUseNewKeys)) {
-            TimestampType.OCCURRED.get(shouldUseNewKeys) -> occured ?: default
-            TimestampType.RESET.get(shouldUseNewKeys) -> reset ?: default
-            TimestampType.ROOTCAUSEDISAPPEARED.get(shouldUseNewKeys) -> rootcause ?: default
-            TimestampType.END_OF_LIST.get(shouldUseNewKeys) -> endOfList ?: default
+        return when (getType()) {
+            TimestampType.OCCURRED -> occured ?: default
+            TimestampType.RESET -> reset ?: default
+            TimestampType.ROOTCAUSEDISAPPEARED -> rootcause ?: default
+            TimestampType.END_OF_LIST -> endOfList ?: default
             else -> default
         }
     }
