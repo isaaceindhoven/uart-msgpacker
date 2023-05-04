@@ -5,7 +5,7 @@ import nl.isaac.androidlibs.uart_msgpacker.packer.*
 import org.msgpack.core.MessagePack
 import java.io.Serializable
 
-data class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
+open class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

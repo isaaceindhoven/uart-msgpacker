@@ -272,4 +272,16 @@ data class ResponseWrapper(
     var write: WriteResponse?,
     var messages: List<MessageResponse>?,
     var logs: List<LogResponse>?
-) : Serializable
+) : Serializable {
+    fun getRid() : Int {
+        read?.let { return it.rid }
+        write?.let { return it.rid }
+        messages?.firstOrNull()?.let { return it.rid }
+        logs?.firstOrNull()?.let { return it.rid }
+        return Int.MIN_VALUE
+    }
+
+    fun isValidRid() : Boolean {
+        return getRid() != Int.MIN_VALUE
+    }
+}
