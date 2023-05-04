@@ -24,6 +24,10 @@ open class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
         return result
     }
 
+    override fun toString(): String {
+        return "ReadRequest(rid:$rid,read:${read.joinToString()}"
+    }
+
     /**
      * Packing method for the ReadRequest
      */
@@ -56,6 +60,10 @@ open class WriteRequest(var rid: Int, var write: Map<Any, Any?>) : Serializable,
             close()
         }.toByteArray()
     }
+
+    override fun toString(): String {
+        return "WriteRequest(rid:$rid,write:${write.mapNotNull { "${it.key}:${it.value}" }.joinToString()}"
+    }
 }
 
 data class ResetAllMessagesRequest(
@@ -77,6 +85,10 @@ data class ResetAllMessagesRequest(
 
             close()
         }.toByteArray()
+    }
+
+    override fun toString(): String {
+        return "ResetAllMessagesRequest(rid:$rid,resetModbusRegister:${resetModbusRegister.mapNotNull { "${it.key}:${it.value}" }.joinToString()}"
     }
 }
 
@@ -117,6 +129,9 @@ data class ResetMessagesByIdRequest(
         return result
     }
 
+    override fun toString(): String {
+        return "ResetMessageByIdRequest(rid:$rid,read:${messageIDs.joinToString()}"
+    }
 }
 
 data class ReadMessages(
