@@ -69,14 +69,20 @@ class UARTUnpacker {
         }
 
         private fun determineResponseType(data: String, shouldUseNewKeys: Boolean): ResponseType? {
-            return when {
-                data.contains(ResponseType.WRITE.idString(shouldUseNewKeys)) -> ResponseType.WRITE
-                data.contains(ResponseType.RESET_MESSAGES.idString(shouldUseNewKeys)) -> ResponseType.RESET_MESSAGES
-                data.contains(ResponseType.MESSAGES.idString(shouldUseNewKeys)) -> ResponseType.MESSAGES
-                data.contains(ResponseType.READ.idString(shouldUseNewKeys)) -> ResponseType.READ
-                data.contains(ResponseType.LOGS.idString(shouldUseNewKeys)) -> ResponseType.LOGS
-                else -> null
-            }
+            return ResponseType.values().map {
+                // Map the ResponseType to the index in the return string. -1 if not found
+                it to responseTypeIndex(data, shouldUseNewKeys, it)
+            }.filter {
+                // Filter all the types that were not found
+                it.second != -1
+            }.minByOrNull {
+                // Find the lowest index, this should be the response type
+                it.second
+            }?.first
+        }
+
+        private fun responseTypeIndex(data: String, shouldUseNewKeys: Boolean, type: ResponseType) : Int {
+            return data.indexOf(type.idString(shouldUseNewKeys))
         }
 
         private enum class ResponseType(val idString: String, val newIdString: String) {
