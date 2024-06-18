@@ -5,7 +5,7 @@ import nl.isaac.androidlibs.uart_msgpacker.packer.*
 import org.msgpack.core.MessagePack
 import java.io.Serializable
 
-open class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
+open class ReadRequest(override val rid: Int, val read: Array<Any>) : Packable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -25,7 +25,7 @@ open class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
     }
 
     override fun toString(): String {
-        return "ReadRequest(rid:$rid,read:${read.joinToString()}"
+        return "ReadRequest(rid:$rid,read:${read.joinToString()})"
     }
 
     /**
@@ -46,7 +46,7 @@ open class ReadRequest(var rid: Int, var read: Array<Any>) : Packable {
     }
 }
 
-open class WriteRequest(var rid: Int, var write: Map<Any, Any?>) : Serializable, Packable {
+open class WriteRequest(override val rid: Int, val write: Map<Any, Any?>) : Serializable, Packable {
     override fun packRequest(shouldUseNewKeys: Boolean): ByteArray {
         return MessagePack.newDefaultBufferPacker().apply {
             packMapHeader(2)
@@ -62,14 +62,14 @@ open class WriteRequest(var rid: Int, var write: Map<Any, Any?>) : Serializable,
     }
 
     override fun toString(): String {
-        return "WriteRequest(rid:$rid,write:${write.mapNotNull { "${it.key}:${it.value}" }.joinToString()}"
+        return "WriteRequest(rid:$rid,write:${write.mapNotNull { "${it.key}:${it.value}" }.joinToString()})"
     }
 }
 
 data class ResetAllMessagesRequest(
-    var rid: Int,
+    override val rid: Int,
     @SerializedName("write")
-    var resetModbusRegister: Map<Int, Int> = mapOf(40053 to 1)
+    val resetModbusRegister: Map<Int, Int> = mapOf(40053 to 1)
 ) : Serializable, Packable {
     override fun packRequest(shouldUseNewKeys: Boolean): ByteArray {
         val register: Int = resetModbusRegister.entries.first().key
@@ -88,14 +88,14 @@ data class ResetAllMessagesRequest(
     }
 
     override fun toString(): String {
-        return "ResetAllMessagesRequest(rid:$rid,resetModbusRegister:${resetModbusRegister.mapNotNull { "${it.key}:${it.value}" }.joinToString()}"
+        return "ResetAllMessagesRequest(rid:$rid,resetModbusRegister:${resetModbusRegister.mapNotNull { "${it.key}:${it.value}" }.joinToString()})"
     }
 }
 
 data class ResetMessagesByIdRequest(
-    var rid: Int,
+    override val rid: Int,
     @SerializedName("resetMessages")
-    var messageIDs: Array<Any>
+    val messageIDs: Array<Any>
 ) : Serializable, Packable {
     override fun packRequest(shouldUseNewKeys: Boolean): ByteArray {
         return MessagePack.newDefaultBufferPacker().apply {
@@ -130,7 +130,7 @@ data class ResetMessagesByIdRequest(
     }
 
     override fun toString(): String {
-        return "ResetMessageByIdRequest(rid:$rid,read:${messageIDs.joinToString()}"
+        return "ResetMessageByIdRequest(rid:$rid,read:${messageIDs.joinToString()})"
     }
 }
 
@@ -177,8 +177,8 @@ data class ReadLog(
 }
 
 data class GetMessagesRequest(
-    var rid: Int,
-    var readMessages: ReadMessages = ReadMessages()
+    override val rid: Int,
+    val readMessages: ReadMessages = ReadMessages()
 ) : Serializable, Packable {
     override fun packRequest(shouldUseNewKeys: Boolean): ByteArray {
         if (readMessages.timestamp.size != 6) throw IllegalArgumentException("Timestamp should be an int array of 6 numbers")
@@ -201,8 +201,8 @@ data class GetMessagesRequest(
 }
 
 data class GetLogsRequest(
-    var rid: Int,
-    var readLog: ReadLog = ReadLog()
+    override val rid: Int,
+    val readLog: ReadLog = ReadLog()
 ) : Serializable, Packable {
     override fun packRequest(shouldUseNewKeys: Boolean): ByteArray {
         if (readLog.timestamp.size != 6) throw IllegalArgumentException("Timestamp should be an int array of 6 numbers")

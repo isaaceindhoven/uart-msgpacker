@@ -267,7 +267,7 @@ data class LogResponse(
     var logEntries: LogEntries
 )
 
-data class ResponseWrapper(
+open class ResponseWrapper(
     var read: ReadResponse?,
     var write: WriteResponse?,
     var messages: List<MessageResponse>?,

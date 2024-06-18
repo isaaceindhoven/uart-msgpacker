@@ -1,16 +1,16 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.2"
+    compileSdkVersion = 34
 
+    namespace("nl.isaac.androidlibs.uart_msgpacker")
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -24,20 +24,39 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+
+    java {
+        toolchain {
+            JavaLanguageVersion.of(17)
+        }
     }
+    
+    compileOptions {
+        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+    }
+
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
+    }
+}
+
+java {
+    toolchain {
+        JavaLanguageVersion.of(17)
     }
 }
 
 dependencies {
-
+    // for git submodule library dependencies the version catalog doesn't offer a good solution. The overarching project would need to define our dependencies in their libs.versions.toml
+    //noinspection UseTomlInstead
     implementation 'org.msgpack:msgpack-core:0.8.22'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    //noinspection UseTomlInstead
+    implementation 'com.google.code.gson:gson:2.11.0'
+    //noinspection UseTomlInstead
+    testImplementation 'junit:junit:4.13.2'
+    //noinspection UseTomlInstead
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    //noinspection UseTomlInstead
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

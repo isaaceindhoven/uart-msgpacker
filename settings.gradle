@@ -1,2 +1,8 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
 include ':uart-msgpacker'
 rootProject.name = "msgpacker"
