@@ -35,7 +35,7 @@ class RequestModelsTest {
         // Values for request.
         val writeMap = mapOf(41000 to 1, 41022 to "BoosterControl", 41005 to 1.0)
         val rid = 3
-        val request = WriteRequest(rid, writeMap as Map<Any, Any?>)
+        val request = WriteRequest(rid, writeMap.toMap())
 
         // Pack request
         val packedRequest = request.packRequest(false)
@@ -74,8 +74,8 @@ class RequestModelsTest {
     fun testResetMessagesByIDRequest(){
         // Values for request.
         val rid = 2435
-        val messageIds = arrayOf(801, 802, 101, 201, 301)
-        val request = ResetMessagesByIdRequest(rid, messageIds as Array<Any>)
+        val messageIds = arrayOf<Any>(801, 802, 101, 201, 301)
+        val request = ResetMessagesByIdRequest(rid, messageIds)
         // Pack request
         val packedRequest = request.packRequest(false)
         // Unpack to new object
