@@ -28,6 +28,17 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    compileOptions {
+        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+    }
+
+    java {
+        toolchain {
+            JavaLanguageVersion.of(17)
+        }
+    }
 }
 
 java {
